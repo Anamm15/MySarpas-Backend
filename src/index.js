@@ -17,9 +17,6 @@ const peminjamanRoutes = require('./routes/peminjaman')
 
 //routes
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-app.use('/', (req, res) => {
-  res.send('tes api');
-});
 
 // Allow public routes
 app.use('/api/auth', authRoutes); // login/register
