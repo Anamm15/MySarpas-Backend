@@ -1,7 +1,9 @@
 # MySarpas-Backend
 
 ## Install Dependencies
-```npm install```
+``` bash
+npm install
+```
 
 ## Setup Database
 ### .env
