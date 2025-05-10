@@ -1,0 +1,67 @@
+###
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+    "namaUser": "admin A",
+    "email": "adminA@gmail.com",
+    "noTelp": "084758234719",
+    "role": "admin",
+    "password": "admin1234"
+}
+
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "dosen@gmail.com",
+    "password": "dosen1234"
+}
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "adminA@gmail.com",
+    "password": "admin1234"
+}
+
+###
+GET http://localhost:3000/api/peminjaman?page=1&per_page=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
+
+###
+GET http://localhost:3000/api/peminjaman/getPeminjamanByUserId?page=1&per_page=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
+
+###
+GET http://localhost:3000/api/peminjaman/getPeminjamanByRuanganId/1?tanggal=2025-05-13
+
+###
+POST http://localhost:3000/api/peminjaman/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
+Content-Type: application/json
+
+{
+    "ruanganId": 1,
+    "tanggal": "2025-05-14",
+    "jamAwal": "12:00",
+    "jamAkhir": "14:00",
+    "jenisKegiatan": "rapat"
+}
+
+###
+PATCH http://localhost:3000/api/peminjaman/updateStatus/8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
+Content-Type: application/json
+
+{
+    "status": "approved"
+}
+
+###
+DELETE http://localhost:3000/api/peminjaman/delete/8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
