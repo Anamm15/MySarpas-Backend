@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const timeFormatter = require('../utils/timeformat')
+const timeFormatter = require('../utils/timeformat');
+const sendEmail = require('../utils/sendEmail');
 
 const getAllPeminjaman = async (req, res) => {
     const page = parseInt(req.query.page) || 1; 
@@ -189,8 +190,10 @@ const createPeminjaman = async (req, res) => {
     }
 
     const tanggalDate = new Date(tanggal);
-    const jamAwalFormatted = timeFormatter.formatTimeToString(jamAwal);
-    const jamAkhirFormatted = timeFormatter.formatTimeToString(jamAkhir);
+    const jamAwalString = timeFormatter.formatTimeToString(jamAwal);
+    const jamAkhirString = timeFormatter.formatTimeToString(jamAkhir);
+    const jamAwalFormatted = timeFormatter.parseTimeToDate(jamAwal);
+    const jamAkhirFormatted = timeFormatter.parseTimeToDate(jamAkhir);
 
     if (jamAwalFormatted >= jamAkhirFormatted) {
         return res.status(400).json({
@@ -213,28 +216,25 @@ const createPeminjaman = async (req, res) => {
     }
 
     try {
-        const konflik = await prisma.peminjaman.findFirst({
+        const konflik = await prisma.peminjaman.findMany({
             where: {
             Ruangan_idRuangan: ruanganId,
             tanggal: tanggalDate,
             status: 'approved',
-            OR: [
-                {
-                jamAwal: {
-                    lte: timeFormatter.parseTimeToDate(jamAwal),
-                },
-                jamAkhir: {
-                    gte: timeFormatter.parseTimeToDate(jamAkhir),
-                },
-                },
-            ],
             },
         });
-  
-        if (konflik) {
-            return res.status(409).json({
-            error: 'Ruangan sudah dipinjam di jam dan tanggal tersebut',
-            });
+
+        for (let i = 0; i < konflik.length; i++) {
+            const peminjaman = konflik[i];
+            if (
+                (jamAwalFormatted >= peminjaman.jamAwal && jamAwalFormatted <= peminjaman.jamAkhir) ||
+                (jamAkhirFormatted >= peminjaman.jamAwal && jamAkhirFormatted <= peminjaman.jamAkhir) ||
+                (jamAwalFormatted <= peminjaman.jamAwal && jamAkhirFormatted >= peminjaman.jamAkhir)
+            ) {
+                return res.status(409).json({
+                    error: 'Ruangan sudah dipinjam di jam dan tanggal tersebut',
+                });
+            }
         }
   
         const peminjaman = await prisma.peminjaman.create({
@@ -270,19 +270,55 @@ const createPeminjaman = async (req, res) => {
   
 const updateStatusPeminjaman = async (req, res) => {
   const { idPeminjaman } = req.params;
+  const { role } = req.user;
   const { status } = req.body;
 
-  const validStatuses = ['approved', 'rejected', 'waiting'];
+  const validStatuses = ['approved', 'rejected', 'waiting', 'canceled'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: 'Status peminjaman tidak valid' });
+  }
+
+  if (role === 'mahasiswa' && status !== 'canceled') {
+    return res.status(403).json({ error: 'Mahasiswa hanya dapat membatalkan peminjaman' });
   }
 
   try {
     const peminjaman = await prisma.peminjaman.update({
       where: { idPeminjaman: parseInt(idPeminjaman) },
       data: { status },
+      select: {
+        idPeminjaman: true,
+        Ruangan_idRuangan: true,
+        User_idUser: true,
+        tanggal: true,
+        jamAwal: true,
+        jamAkhir: true,
+        jenisKegiatan: true,
+        Ruangan: {
+          select: {
+            idRuangan: true,
+            namaRuangan: true,
+          },
+        },
+      },
     });
 
+    if (!peminjaman) {
+      return res.status(404).json({ error: 'Peminjaman tidak ditemukan' });
+    }
+
+    user = await prisma.user.findUnique({
+        where: { idUser: peminjaman.User_idUser },
+        select: {
+            email: true,
+        }
+    });
+
+    if (!user) {
+        return res.status(404).json({ error: 'User tidak ditemukan' });
+    }
+
+    await sendEmail(user.email, status, peminjaman.Ruangan.namaRuangan, peminjaman.tanggal, peminjaman.jamAwal, peminjaman.jamAkhir, peminjaman.jenisKegiatan);
     res.json({
         message: 'Status peminjaman berhasil diperbarui',
         data: {

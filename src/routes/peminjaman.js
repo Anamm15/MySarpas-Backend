@@ -8,7 +8,7 @@ router.get('/', authorizeAdmin, getAllPeminjaman);
 router.get('/getPeminjamanByUserId', getPeminjamanByUserId);
 router.get('/getPeminjamanByRuanganId/:idRuangan', getPeminjamanByRuanganId);
 router.post('/create', createPeminjaman);
-router.patch('/updateStatus/:idPeminjaman', authorizeAdmin, updateStatusPeminjaman);
+router.patch('/updateStatus/:idPeminjaman', updateStatusPeminjaman);
 router.delete('/delete/:idPeminjaman', deletePeminjaman);
 
 module.exports = router;
