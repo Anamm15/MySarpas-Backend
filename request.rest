@@ -1,0 +1,79 @@
+###
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+    "namaUser": "admin A",
+    "email": "adminA@gmail.com",
+    "noTelp": "084758234719",
+    "role": "admin",
+    "password": "admin1234"
+}
+
+###
+
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+    "namaUser": "Anam",
+    "email": "irulxartal@gmail.com",
+    "noTelp": "083111037657",
+    "role": "mahasiswa",
+    "password": "anam1234"
+}
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "irulxartal@gmail.com",
+    "password": "anam1234"
+}
+
+###
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "adminA@gmail.com",
+    "password": "admin1234"
+}
+
+###
+GET http://localhost:3000/api/peminjaman?page=1&per_page=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
+
+###
+GET http://localhost:3000/api/peminjaman/getPeminjamanByUserId?page=1&per_page=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
+
+###
+GET http://localhost:3000/api/peminjaman/getPeminjamanByRuanganId/1?tanggal=2025-05-13
+
+###
+POST http://localhost:3000/api/peminjaman/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjgsImVtYWlsIjoiaXJ1bHhhcnRhbEBnbWFpbC5jb20iLCJyb2xlIjoibWFoYXNpc3dhIiwiaWF0IjoxNzQ2OTg0ODUxLCJleHAiOjE3NDcwNzEyNTF9.lOiMamPQXBul4ER30RJKATlpF6iSPZBsPZQk2s0EZjI
+Content-Type: application/json
+
+{
+    "ruanganId": 1,
+    "tanggal": "2025-05-21",
+    "jamAwal": "12:00",
+    "jamAkhir": "13:00",
+    "jenisKegiatan": "rapat"
+}
+
+###
+PATCH http://localhost:3000/api/peminjaman/updateStatus/18
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njk4NTkzNywiZXhwIjoxNzQ3MDcyMzM3fQ.OJ3d6ax2aRuixFma4tNbj6cpmrMdO82TxukZZzFWeVA
+Content-Type: application/json
+
+{
+    "status": "approved"
+}
+
+###
+DELETE http://localhost:3000/api/peminjaman/delete/8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjcsImVtYWlsIjoiYWRtaW5BQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Njg1MTM5NCwiZXhwIjoxNzQ2OTM3Nzk0fQ.tHv_e_Zl3GxRHc4bvGESSXnZ0B8n2rg4zXgUS15mR7Q
