@@ -29,7 +29,10 @@ const register = async (req, res) => {
       },
     });
 
-    res.status(201).json({ message: 'User registered successfully', user: { idUser: newUser.idUser, email: newUser.email, role: newUser.role } });
+    res.status(201).json(
+      { status : true,
+        message: 'User registered successfully',
+        data: { idUser: newUser.idUser, email: newUser.email, role: newUser.role } });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -60,10 +63,13 @@ const login = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.json({ message: 'Login successful', token });
+    res.json(
+      { status : true,
+        message: 'Login successful',
+        data : token });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: error });
   }
 };
 

@@ -7,12 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Gedung {
-  idGedung   Int       @id @default(autoincrement())
-  namaGedung String    @db.VarChar(100)
-  Ruangan    Ruangan[]
-}
-
 model Peminjaman {
   idPeminjaman      Int         @id @default(autoincrement())
   User_idUser       Int
@@ -22,17 +16,21 @@ model Peminjaman {
   jamAkhir          DateTime    @db.Time(6)
   jenisKegiatan     String?     @db.VarChar(100)
   status            status_enum @default(waiting)
+  deskripsi         String?     @db.VarChar
+  message           String?     @db.VarChar
   Ruangan           Ruangan     @relation(fields: [Ruangan_idRuangan], references: [idRuangan], onDelete: Cascade, onUpdate: NoAction)
   User              User        @relation(fields: [User_idUser], references: [idUser], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Ruangan {
-  idRuangan       Int          @id @default(autoincrement())
-  namaRuangan     String       @db.VarChar(100)
-  kapasitas       Int
-  Gedung_idGedung Int
-  Peminjaman      Peminjaman[]
-  Gedung          Gedung       @relation(fields: [Gedung_idGedung], references: [idGedung], onDelete: Cascade, onUpdate: NoAction)
+  idRuangan   Int          @id @default(autoincrement())
+  namaRuangan String       @db.VarChar(100)
+  kapasitas   Int
+  fasilitas   String?      @db.VarChar
+  deskripsi   String?      @db.VarChar
+  Gedung      String?      @db.VarChar
+  gambar      String?      @db.VarChar
+  Peminjaman  Peminjaman[]
 }
 
 model User {
@@ -56,4 +54,5 @@ enum status_enum {
   approved
   waiting
   rejected
+  canceled
 }
