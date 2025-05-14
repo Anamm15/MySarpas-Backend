@@ -1,13 +1,39 @@
 const nodemailer = require('nodemailer');
 
-async function sendEmail(to, status, namaRuangan, tanggal, jamAwal, jamAkhir, jenisKegiatan) {
+async function sendEmail(
+  to,
+  status,
+  namaRuangan,
+  tanggal,
+  jamAwal,
+  jamAkhir,
+  jenisKegiatan,
+  deskripsi
+) {
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER, 
+      user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
-    }
+    },
   });
+
+  const tanggalObj = new Date(tanggal);
+  const tanggalFormatted = tanggalObj.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const formatTime = (timeStr) =>
+    new Date(timeStr).toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+
+  const jamFormatted = `${formatTime(jamAwal)} - ${formatTime(jamAkhir)}`;
 
   if (status === 'approved') {
     let info = transporter.sendMail({
@@ -20,15 +46,16 @@ async function sendEmail(to, status, namaRuangan, tanggal, jamAwal, jamAkhir, je
           <p>Permohonan peminjaman ruangan Anda dengan detail sebagai berikut telah <b>DISETUJUI</b>:</p>
           <ul>
             <li><b>Ruangan:</b> ${namaRuangan}</li>
-            <li><b>Tanggal:</b> ${tanggal}</li>
-            <li><b>Jam:</b> ${jamAwal} - ${jamAkhir}</li>
+            <li><b>Tanggal:</b> ${tanggalFormatted}</li>
+            <li><b>Jam:</b> ${jamFormatted}</li>
             <li><b>Jenis Kegiatan:</b> ${jenisKegiatan}</li>
+            <li><b>Alasan Peminjaman:</b> ${deskripsi}</li>
           </ul>
           <p>Silakan hadir sesuai waktu yang telah ditentukan dan menjaga kebersihan serta ketertiban ruangan selama digunakan.</p>
           <p>Terima kasih telah menggunakan layanan MySarpras.</p>
           <p>Hormat kami,<br/>Tim MySarpras</p>
         </div>
-      `
+      `,
     });
     console.log('Email terkirim: %s', info.messageId);
   }
@@ -44,16 +71,17 @@ async function sendEmail(to, status, namaRuangan, tanggal, jamAwal, jamAkhir, je
           <p>Dengan hormat, kami sampaikan bahwa permohonan peminjaman ruangan Anda <b>TIDAK DAPAT DISETUJUI</b> dengan detail sebagai berikut:</p>
           <ul>
             <li><b>Ruangan:</b> ${namaRuangan}</li>
-            <li><b>Tanggal:</b> ${tanggal}</li>
-            <li><b>Jam:</b> ${jamAwal} - ${jamAkhir}</li>
+            <li><b>Tanggal:</b> ${tanggalFormatted}</li>
+            <li><b>Jam:</b> ${jamFormatted}</li>
             <li><b>Jenis Kegiatan:</b> ${jenisKegiatan}</li>
+            <li><b>Alasan Peminjaman:</b> ${deskripsi}</li>
           </ul>
           <p>Penolakan ini dapat disebabkan oleh adanya jadwal yang bentrok atau alasan administratif lainnya.</p>
           <p>Silakan ajukan kembali permohonan dengan waktu atau ruangan yang berbeda.</p>
           <p>Terima kasih atas perhatian dan pengertiannya.</p>
           <p>Hormat kami,<br/>Tim MySarpras</p>
         </div>
-      `
+      `,
     });
     console.log('Email terkirim: %s', info.messageId);
   }
@@ -77,7 +105,7 @@ async function sendEmail(to, status, namaRuangan, tanggal, jamAwal, jamAkhir, je
           <p>Terima kasih atas perhatian Anda.</p>
           <p>Hormat kami,<br/>Tim MySarpras</p>
         </div>
-      `
+      `,
     });
     console.log('Email terkirim: %s', info.messageId);
   }
