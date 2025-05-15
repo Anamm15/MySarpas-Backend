@@ -1,4 +1,5 @@
 .env
 node_modules
 *.rest
-src/uploads/user
+src/uploads/ruangan/*
+src/uploads/user/*
