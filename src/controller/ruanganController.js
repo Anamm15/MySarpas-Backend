@@ -31,43 +31,47 @@ const upload = multer({ storage: storage, fileFilter }).single('gambar');
 
 // Get all ruangan
 const getAllRuangans = async (req, res) => {
-    try {
-        const ruangans = await prisma.ruangan.findMany();
-        res.status(200).json(ruangans);
-    } catch (error) {
-        console.error('Error fetching ruangans:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    const ruangans = await prisma.ruangan.findMany({
+      orderBy: {
+        idRuangan: 'asc',
+      },
+    });
+    res.status(200).json({ data: ruangans });
+  } catch (error) {
+    console.error('Error fetching ruangans:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 // Get ruangan by namaRuangan search
 const getRuangansBySearch = async (req, res) => {
-    const { namaRuangan } = req.query;
+  const { namaRuangan } = req.query;
 
-    try {
-        const ruangans = await prisma.ruangan.findMany({
-            where: {
-                namaRuangan: {
-                    contains: namaRuangan,
-                    mode: 'insensitive'
-                }
-            },
-        });
+  try {
+    const ruangans = await prisma.ruangan.findMany({
+      where: {
+        namaRuangan: {
+          contains: namaRuangan,
+          mode: 'insensitive',
+        },
+      },
+    });
 
-        if (ruangans.length === 0) {
-            return res.status(404).json({
-                message: 'Ruangan tidak ditemukan'
-            });
-        }
-
-        res.status(200).json(ruangans);
-    } catch (error) {
-        console.error('Error fetching ruangans:', error);
-        res.status(500).json({
-            error: 'Internal server error',
-            details: error.message
-        });
+    if (ruangans.length === 0) {
+      return res.status(404).json({
+        error: 'Ruangan tidak ditemukan',
+      });
     }
+
+    res.status(200).json({ data: ruangans });
+  } catch (error) {
+    console.error('Error fetching ruangans:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      details: error.message,
+    });
+  }
 };
 
 // Post create ruangan
@@ -120,6 +124,50 @@ const updateRuangan = async (req, res) => {
         console.error('Error updating ruangan:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
+  }
+
+  try {
+    const ruangan = await prisma.ruangan.findMany({
+      where: idFilter,
+      select: {
+        idRuangan: true,
+        namaRuangan: true,
+        kapasitas: true,
+        Peminjaman: {
+          where: {
+            tanggal: new Date(tanggal),
+            status: 'approved',
+          },
+          orderBy: {
+            jamAwal: 'asc',
+          },
+          select: {
+            idPeminjaman: true,
+            tanggal: true,
+            jamAwal: true,
+            jamAkhir: true,
+            jenisKegiatan: true,
+            deskripsi: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: {
+        idRuangan: 'asc',
+      },
+    });
+
+    return res.status(200).json({
+      message: 'Jadwal peminjaman ruangan berhasil diambil',
+      data: {
+        tanggal: tanggal,
+        ruangan,
+      },
+    });
+  } catch (error) {
+    console.error('Get jadwal peminjaman message:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 module.exports = {
@@ -128,4 +176,5 @@ module.exports = {
     createRuangan,
     updateRuangan,
     upload,
+    getJadwalAllRuangan,
 };
