@@ -1,8 +1,33 @@
 const { PrismaClient } = require('@prisma/client');
 const { authenticate, authorizeAdmin } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
 const uuid = require('uuid');
 
 const prisma = new PrismaClient();
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './src/uploads/ruangan/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = uuid.v4() + path.extname(file.originalname);
+        cb(null, uniqueName);
+    }
+});
+
+// Filter jenis file (opsional)
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed'));
+    }
+};
+const upload = multer({ storage: storage, fileFilter }).single('gambar');
 
 // Get all ruangan
 const getAllRuangans = async (req, res) => {
@@ -51,58 +76,53 @@ const getRuangansBySearch = async (req, res) => {
 
 // Post create ruangan
 const createRuangan = async (req, res) => {
-  const { namaRuangan, kapasitas } = req.body;
-  try {
-    const newRuangan = await prisma.ruangan.create({
-      data: {
-        namaRuangan,
-        kapasitas,
-      },
-    });
-    res.status(201).json(newRuangan);
-  } catch (error) {
-    console.error('Error creating ruangan:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    const { namaRuangan, kapasitas, fasilitas, deskripsi, Gedung } = req.body;
+    const fileGambar = req.file ? req.file.filename : null;
+
+    try {
+        const newRuangan = await prisma.ruangan.create({
+            data: {
+                namaRuangan,
+                kapasitas: parseInt(kapasitas),
+                fasilitas,
+                deskripsi,
+                Gedung,
+                gambar: fileGambar, // hanya nama file
+            },
+        });
+        res.status(201).json(newRuangan);
+    } catch (error) {
+        console.error('Error creating ruangan:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 };
 
 // Patch update ruangan
 const updateRuangan = async (req, res) => {
-  const { idRuangan } = req.params;
-  const { namaRuangan, kapasitas } = req.body;
-  const idRuanganInt = parseInt(idRuangan);
-  try {
-    const updatedRuangan = await prisma.ruangan.update({
-      where: { idRuangan: idRuanganInt },
-      data: {
-        namaRuangan,
-        kapasitas,
-      },
-    });
-    res.status(200).json(updatedRuangan);
-  } catch (error) {
-    console.error('Error updating ruangan:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+    const idRuangan = parseInt(req.params.idRuangan, 10);
+    const { namaRuangan, fasilitas, deskripsi, Gedung, gambar } = req.body;
+    const fileGambar = req.file ? req.file.filename : null;
 
-const getJadwalAllRuangan = async (req, res) => {
-  const { tanggal, idRuangan } = req.query;
+    try {
+        const dataToUpdate = {};
+        if (namaRuangan !== undefined) dataToUpdate.namaRuangan = namaRuangan;
+        if (req.body.kapasitas !== undefined && req.body.kapasitas !== '') {
+            const kapasitas = parseInt(req.body.kapasitas, 10);
+            if (!isNaN(kapasitas)) dataToUpdate.kapasitas = kapasitas;
+        }
+        if (fasilitas !== undefined) dataToUpdate.fasilitas = fasilitas;
+        if (deskripsi !== undefined) dataToUpdate.deskripsi = deskripsi;
+        if (Gedung !== undefined) dataToUpdate.Gedung = Gedung;
+        if (fileGambar) dataToUpdate.gambar = fileGambar;
 
-  if (!tanggal) {
-    return res.status(400).json({
-      error: 'Tanggal harus disertakan dalam query parameter',
-    });
-  }
-
-  let idFilter = undefined;
-  if (idRuangan) {
-    const ids = idRuangan
-      .split(',')
-      .map((id) => parseInt(id))
-      .filter((id) => !isNaN(id));
-    if (ids.length > 0) {
-      idFilter = { idRuangan: { in: ids } };
+        await prisma.ruangan.update({
+            where: { idRuangan },
+            data: dataToUpdate,
+        });
+        res.status(200).json(updateRuangan);
+    } catch (error) {
+        console.error('Error updating ruangan:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
   }
 
@@ -151,9 +171,10 @@ const getJadwalAllRuangan = async (req, res) => {
 };
 
 module.exports = {
-  getAllRuangans,
-  getRuangansBySearch,
-  createRuangan,
-  updateRuangan,
-  getJadwalAllRuangan,
+    getAllRuangans,
+    getRuangansBySearch,
+    createRuangan,
+    updateRuangan,
+    upload,
+    getJadwalAllRuangan,
 };

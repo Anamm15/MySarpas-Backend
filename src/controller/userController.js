@@ -15,6 +15,7 @@ const getProfile = async (req, res) => {
         email: true,
         noTelp: true,
         role: true,
+        kartuTandaPengenal: true,
       },
     });
 
