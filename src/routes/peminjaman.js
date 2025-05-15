@@ -18,6 +18,6 @@ router.get('/getPeminjamanByRuanganId/:idRuangan', getPeminjamanByRuanganId);
 router.post('/create', createPeminjaman);
 router.patch('/updateStatus/:idPeminjaman', updateStatusPeminjaman);
 router.delete('/delete/:idPeminjaman', deletePeminjaman);
-router.get('/:idPeminjaman', getPeminjamanDetail);
+router.get('/detail/:idPeminjaman', getPeminjamanDetail);
 
 module.exports = router;

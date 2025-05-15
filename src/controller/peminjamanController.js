@@ -161,7 +161,7 @@ const getPeminjamanByUserId = async (req, res) => {
   };
 
   try {
-    const peminjaman = prisma.peminjaman.findMany({
+    const peminjaman = await prisma.peminjaman.findMany({
       where: whereClause,
       skip,
       take: limit,

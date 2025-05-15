@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 // Get all ruangan
 const getAllRuangans = async (req, res) => {
   try {
-    const ruangans = await prisma.ruangan.findMany();
+    const ruangans = await prisma.ruangan.findMany({
+      orderBy: {
+        idRuangan: 'asc',
+      },
+    });
     res.status(200).json({ data: ruangans });
   } catch (error) {
     console.error('Error fetching ruangans:', error);
@@ -51,7 +55,6 @@ const createRuangan = async (req, res) => {
   try {
     const newRuangan = await prisma.ruangan.create({
       data: {
-        idRuangan: uuid.v4(),
         namaRuangan,
         kapasitas,
       },
@@ -83,9 +86,74 @@ const updateRuangan = async (req, res) => {
   }
 };
 
+const getJadwalAllRuangan = async (req, res) => {
+  const { tanggal, idRuangan } = req.query;
+
+  if (!tanggal) {
+    return res.status(400).json({
+      error: 'Tanggal harus disertakan dalam query parameter',
+    });
+  }
+
+  let idFilter = undefined;
+  if (idRuangan) {
+    const ids = idRuangan
+      .split(',')
+      .map((id) => parseInt(id))
+      .filter((id) => !isNaN(id));
+    if (ids.length > 0) {
+      idFilter = { idRuangan: { in: ids } };
+    }
+  }
+
+  try {
+    const ruangan = await prisma.ruangan.findMany({
+      where: idFilter,
+      select: {
+        idRuangan: true,
+        namaRuangan: true,
+        kapasitas: true,
+        Peminjaman: {
+          where: {
+            tanggal: new Date(tanggal),
+            status: 'approved',
+          },
+          orderBy: {
+            jamAwal: 'asc',
+          },
+          select: {
+            idPeminjaman: true,
+            tanggal: true,
+            jamAwal: true,
+            jamAkhir: true,
+            jenisKegiatan: true,
+            deskripsi: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: {
+        idRuangan: 'asc',
+      },
+    });
+
+    return res.status(200).json({
+      message: 'Jadwal peminjaman ruangan berhasil diambil',
+      data: {
+        tanggal: tanggal,
+        ruangan,
+      },
+    });
+  } catch (error) {
+    console.error('Get jadwal peminjaman message:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getAllRuangans,
   getRuangansBySearch,
   createRuangan,
   updateRuangan,
+  getJadwalAllRuangan,
 };
