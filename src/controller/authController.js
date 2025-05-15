@@ -1,13 +1,38 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const uuid = require('uuid');
 const prisma = new PrismaClient();
+const multer = require('multer');
+const path = require('path');
 
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './src/uploads/user/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = uuid.v4() + path.extname(file.originalname);
+        cb(null, uniqueName);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed'));
+    }
+};
+const upload = multer({ storage: storage, fileFilter }).single('gambar');
 // REGISTER
 const register = async (req, res) => {
   const { namaUser, email, noTelp,  role, password } = req.body;
-
+  const fileGambar = req.file ? req.file.filename : null;
   try {
     // Cek apakah email sudah digunakan
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -26,6 +51,7 @@ const register = async (req, res) => {
         noTelp,
         role,
         password: hashedPassword,
+        kartuTandaPengenal: fileGambar,
       },
     });
 
@@ -78,4 +104,5 @@ const login = async (req, res) => {
 module.exports = {
   register,
   login,
+  upload,
 };
