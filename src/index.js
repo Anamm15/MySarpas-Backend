@@ -9,16 +9,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 const { authenticate } = require('./middleware/auth');
-const authRoutes = require('./routes/auth')
-const userRoutes = require('./routes/user')
-const ruanganRoutes = require('./routes/ruangan')
-const peminjamanRoutes = require('./routes/peminjaman')
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const ruanganRoutes = require('./routes/ruangan');
+const peminjamanRoutes = require('./routes/peminjaman');
 
-const path = require('path');
-
-console.log(__dirname)
+console.log(__dirname);
 //routes
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads/ruangan')));
@@ -28,9 +25,9 @@ app.use('/api/auth', authRoutes); // login/register
 
 // kalo pake ini di sini routes setelah ini harus sudah login
 app.use(authenticate);
-app.use('/api/user',userRoutes);
-app.use('/api/ruangan',ruanganRoutes);
-app.use('/api/peminjaman',peminjamanRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/ruangan', ruanganRoutes);
+app.use('/api/peminjaman', peminjamanRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
