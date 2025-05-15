@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const swaggerUI = require('swagger-ui-express');
+const path = require('path');
 const swaggerSpec = require('./utils/swagger');
 dotenv.config();
 const app = express();
@@ -17,6 +18,7 @@ const peminjamanRoutes = require('./routes/peminjaman')
 
 //routes
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads/ruangan')));
 
 // Allow public routes
 app.use('/api/auth', authRoutes); // login/register
