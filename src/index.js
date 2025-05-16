@@ -18,7 +18,8 @@ const peminjamanRoutes = require('./routes/peminjaman');
 console.log(__dirname);
 //routes
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads/ruangan')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, '../uploads/ruangan')));
 
 // Allow public routes
 app.use('/api/auth', authRoutes); // login/register
@@ -28,6 +29,5 @@ app.use(authenticate);
 app.use('/api/user', userRoutes);
 app.use('/api/ruangan', ruanganRoutes);
 app.use('/api/peminjaman', peminjamanRoutes);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
