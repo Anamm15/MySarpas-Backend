@@ -15,6 +15,7 @@ const getProfile = async (req, res) => {
         email: true,
         noTelp: true,
         role: true,
+        kartuTandaPengenal: true,
       },
     });
 
@@ -36,11 +37,11 @@ const getProfile = async (req, res) => {
 // Memperbarui profil pengguna (noTelp, password)
 const updateProfile = async (req, res) => {
   const { idUser } = req.user; // Mendapatkan idUser dari token JWT
-  const { noTelp, password } = req.body;
+  const { noTelp, password,email } = req.body;
 
   try {
     // Validasi password jika ada perubahan
-    let updatedData = { noTelp };
+    let updatedData = { noTelp,email };
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
